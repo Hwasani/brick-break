@@ -6,9 +6,12 @@ static const int screenHeight = 600;
 
 typedef struct ball
 {
+    bool is_active;
     Vector2 size;
     Vector2 position;
+    Vector2 speed;
     Color color;
+    int radius;
 } ball_t;
 
 typedef struct player
@@ -35,8 +38,10 @@ void InitGame()
 {
     brick.size = (Vector2){16, 30};
 
-    ball.position = (Vector2){screenWidth / 2, screenHeight / 2};
+    ball.is_active = false;
+    ball.speed = (Vector2){2, 2};
     ball.size = (Vector2){10, 10};
+    ball.radius = 10;
     ball.color = RED;
 
     player.color = BLACK;
@@ -50,14 +55,34 @@ void InitGame()
 
 void UpdateGame()
 {
-    if (IsKeyDown(KEY_A) && player.position.x > 1)
-        player.position.x -= 4;
-    if (IsKeyDown(KEY_D) && player.position.x + player.size.x < screenWidth)
-        player.position.x += 4;
-    if (IsKeyDown(KEY_A) && player.position.x > 1 && IsKeyDown(KEY_LEFT_SHIFT))
-        player.position.x -= 8;
-    if (IsKeyDown(KEY_D) && player.position.x + player.size.x < screenWidth && IsKeyDown(KEY_LEFT_SHIFT))
-        player.position.x += 8;
+    if (IsKeyPressed(KEY_SPACE))
+    {
+        ball.is_active = true;
+    }
+
+    if (ball.is_active)
+    {
+        ball.position.x += ball.speed.x;
+        ball.position.y -= ball.speed.y;
+
+        if (((ball.position.x + ball.radius) >= screenWidth) || ((ball.position.x - ball.radius) <= 0))
+            ball.speed.x *= -1;
+        if ((ball.position.y - ball.radius) <= 0)
+            ball.speed.y *= -1;
+
+        if (IsKeyDown(KEY_A) && player.position.x > 1)
+            player.position.x -= 4;
+        if (IsKeyDown(KEY_D) && player.position.x + player.size.x < screenWidth)
+            player.position.x += 4;
+        if (IsKeyDown(KEY_A) && player.position.x > 1 && IsKeyDown(KEY_LEFT_SHIFT))
+            player.position.x -= 4 * 2;
+        if (IsKeyDown(KEY_D) && player.position.x + player.size.x < screenWidth && IsKeyDown(KEY_LEFT_SHIFT))
+            player.position.x += 4 * 2;
+    }
+    else
+    {
+        ball.position = (Vector2){player.position.x + 10, player.position.y - 20};
+    }
 }
 
 void DrawGame()
