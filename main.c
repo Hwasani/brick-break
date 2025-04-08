@@ -33,9 +33,17 @@ typedef struct brick
 static brick_t brick = {0};
 static player_t player = {0};
 static ball_t ball = {0};
+int hitTotal = 0;
+
+void InitWin()
+{
+    InitWindow(screenWidth, screenHeight, "Brick Breaker");
+    SetTargetFPS(60);
+}
 
 void InitGame()
 {
+    hitTotal = 0;
     brick.size = (Vector2){16, 30};
 
     ball.is_active = false;
@@ -48,10 +56,7 @@ void InitGame()
     player.size = (Vector2){40, 15};
     player.center = player.size.x / 2;
     player.position = (Vector2){screenWidth / 2 - player.center, 500};
-
-    InitWindow(screenWidth, screenHeight, "Brick Breaker");
-    SetTargetFPS(60);
-}
+};
 
 void UpdateGame()
 {
@@ -65,10 +70,18 @@ void UpdateGame()
         ball.position.x += ball.speed.x;
         ball.position.y -= ball.speed.y;
 
+        if (CheckCollisionCircleRec(ball.position, ball.radius, (Rectangle){player.position.x, player.position.y, player.size.x, player.size.y}))
+        {
+            hitTotal += 1;
+            ball.speed.y *= -1;
+        }
+
         if (((ball.position.x + ball.radius) >= screenWidth) || ((ball.position.x - ball.radius) <= 0))
             ball.speed.x *= -1;
         if ((ball.position.y - ball.radius) <= 0)
             ball.speed.y *= -1;
+        if ((ball.position.y + ball.radius) >= screenHeight)
+            InitGame();
 
         if (IsKeyDown(KEY_A) && player.position.x > 1)
             player.position.x -= 4;
@@ -81,7 +94,7 @@ void UpdateGame()
     }
     else
     {
-        ball.position = (Vector2){player.position.x + 10, player.position.y - 20};
+        ball.position = (Vector2){player.position.x + 15, player.position.y - 20};
     }
 }
 
@@ -90,6 +103,7 @@ void DrawGame()
     HideCursor();
     BeginDrawing();
     ClearBackground(RAYWHITE);
+    DrawText(TextFormat("Total Hits: %02i", hitTotal), screenWidth / 40, screenHeight / 40, 30, BLACK);
     DrawRectangle(player.position.x, player.position.y, player.size.x, player.size.y, player.color);
     DrawRectangle(ball.position.x, ball.position.y, ball.size.x, ball.size.y, ball.color);
     UpdateGame();
@@ -98,6 +112,7 @@ void DrawGame()
 
 int main()
 {
+    InitWin();
     InitGame();
     while (!WindowShouldClose())
     {
