@@ -74,6 +74,23 @@ void InitGame()
     }
 };
 
+void DrawBricks()
+{
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < BRICKS_PER_ROW; j++)
+        {
+            if (brick[i][j].active == true)
+            {
+                if ((i + j) % 2 == 0)
+                    DrawRectangle(brick[i][j].position.x - brick_size.x / 2, brick[i][j].position.y - brick_size.y / 2, brick_size.x, brick_size.y, PINK);
+                else
+                    DrawRectangle(brick[i][j].position.x - brick_size.x / 2, brick[i][j].position.y - brick_size.y / 2, brick_size.x, brick_size.y, BLUE);
+            }
+        }
+    }
+}
+
 void UpdateGame()
 {
 
@@ -124,7 +141,7 @@ void UpdateGame()
     {
         for (int j = 0; j < BRICKS_PER_ROW; j++)
         {
-            if (CheckCollisionCircleRec(ball.position, ball.radius, (Rectangle){brick[i][j].position.x, brick[i][j].position.y, brick_size.x, brick_size.y}))
+            if (brick[i][j].active && CheckCollisionCircleRec(ball.position, ball.radius, (Rectangle){brick[i][j].position.x, brick[i][j].position.y, brick_size.x, brick_size.y}))
             {
 
                 brick[i][j].active = false;
@@ -132,23 +149,8 @@ void UpdateGame()
             }
         }
     }
-}
 
-void DrawBricks()
-{
-    for (int i = 0; i < ROWS; i++)
-    {
-        for (int j = 0; j < BRICKS_PER_ROW; j++)
-        {
-            if (brick[i][j].active == true)
-            {
-                if ((i + j) % 2 == 0)
-                    DrawRectangle(brick[i][j].position.x - brick_size.x / 2, brick[i][j].position.y - brick_size.y / 2, brick_size.x, brick_size.y, PINK);
-                else
-                    DrawRectangle(brick[i][j].position.x - brick_size.x / 2, brick[i][j].position.y - brick_size.y / 2, brick_size.x, brick_size.y, BLUE);
-            }
-        }
-    }
+    DrawBricks();
 }
 
 void DrawGame()
@@ -161,7 +163,6 @@ void DrawGame()
     DrawCircle(ball.position.x - 1, ball.position.y, ball.radius + 2, BLACK);
     DrawCircle(ball.position.x, ball.position.y, ball.radius, ball.color);
     UpdateGame();
-    DrawBricks();
 
     // DrawText(TextFormat("Total Hits: %02i", hitTotal), screenWidth / 40, screenHeight / 40, 30, BLACK);
     EndDrawing();
